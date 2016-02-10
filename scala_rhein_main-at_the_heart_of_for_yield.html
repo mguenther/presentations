@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Reveal.js</title>
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css" id="theme">
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+          document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+    </head>
+    <body>
+
+        <div class="reveal">
+            <div class="slides"><section  data-markdown><script type="text/template">## At the Heart of `for-yield`
+
+Markus Günther
+
+[markus.guenther@gmail.com](mailto:markus.guenther@gmail.com) | [habitat47.de](http://www.habitat47.de) | [@mguenther](https://twitter.com/mguenther)
+</script></section><section ><section data-markdown><script type="text/template">
+### Suppose we want to collect course invitations for users based on a set of available courses.
+</script></section><section data-markdown><script type="text/template">
+## Imperative Java Version
+
+```java
+public List<Invitation> collectInvitations() {
+    List<String> courses = Arrays.asList(
+        "Functional Programming Principles in Scala",
+        "Principles of Reactive Programming");
+
+    List<Invitation> invitations = new ArrayList<>();
+
+    for (int i = 0; i < courses.size(); i++) {
+        String course = courses.get(i);
+        Invitation invitation = new Invitation(
+            "Dear user, we'd like to invite to " +
+            "our course " + course + ".");
+        invitations.add(invitation);
+    }
+    return Collections.unmodifiableList(invitations);
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## Translation to Scala
+
+```scala
+def collectInvitations(): List[Invitation] = {
+  val courses = List(
+    "Functional Programming Principles in Scala", 
+    "Principles of Reactive Programming")
+  var invitations = List()
+
+  for (i <- 0 until courses.length) {
+    val course = course(i)
+    val invitation = new Invitation(
+      "Dear user, we'd like to invite you to our " +
+      "course " + course + ".")
+    invitations ::= invitation
+  }
+
+  invitations
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## Extracting the `map` aspect
+
+```scala
+def map(courses: List[String], f: (String) => Invitation) = {
+  var invitations: List[Invitation] = List()
+  for (i <- 0 until courses.length) {
+    invitations ::= f(courses(i))
+  }
+  invitations
+}
+
+def collectInvitations(): List[Invitation] = {
+  val courses = List(...)
+  val f = { (course: String) => new Invitation(
+    "Dear user, we'd like to invite you " +
+    "to our course " + course + ".") }
+  map(courses, f)
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## Using `map` from `List[+T]`
+
+```scala
+def collectInvitations(): List[Invitation] = {
+  val courses = List(
+    "Functional Programming Principles in Scala", 
+    "Principles of Reactive Programming")
+  courses.map { (course: String) => new Invitation(
+    "Dear user, we'd like to invite you " +
+    "to our course " + course + ".") }
+}
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+### Suppose we want to explicitly address a user by her name.
+</script></section><section data-markdown><script type="text/template">
+### The imperative version does not compose well.
+
+```java
+public List<Invitation> collectInvitationsForUsers() {
+  List<String> courses = Arrays.asList(...);
+  List<String> users = Arrays.asList("Brian", "Miranda", "Mark");
+  List<Invitation> invitations = new ArrayList<>();
+
+  for (int i = 0; i < users.size(); i++) {
+    for (int j = 0; j < courses.size(); j++) {
+      Invitation invitation = new Invitation(
+        "Dear " + user.get(i) + ", we'd like to invite " +
+        "you to our course " + course.get(j) + ".");
+      invitations.add(invitation);;
+    }
+  }
+  return Collections.unmodifiableList(invitations);
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## Are nested `map`s better?
+
+```scala
+def collectInvitations(): List[Invitation] = {
+  val courses = List(...)
+  val users = List("Brian", "Miranda", "Mark")
+
+  users.map { (name: String) => {
+      courses.map { (course: String) => new Invitation(
+        "Dear " + name + ", we'd like to invite you " +
+        "to our course " + course + ".") }
+    }
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+#### Well, for starters, this doesn't even compile. :)
+
+```
+scala> error: type mismatch;
+found   : List[List[Invitation]
+required: List[Invitation]
+          users.map { (name: String) =>
+```
+</script></section><section data-markdown><script type="text/template">
+### `flatten` removes the nested list.
+
+```scala
+def collectInvitations(): List[Invitation] = {
+  val courses = List(...)
+  val users = List("Brian", "Miranda", "Mark")
+
+  users.map { (name: String) => {
+      courses.map { (course: String) => new Invitation(
+        "Dear " + name + ", we'd like to invite you " +
+        "to our course " + course + ".") }
+    }
+  }.flatten
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## map + flatten = flatMap
+</script></section><section data-markdown><script type="text/template">
+### Use nested `flatMap`s with a **final** `map`!
+
+```scala
+def collectInvitations(): List[Invitation] = {
+  val courses = List(...)
+  val users = List("Brian", "Miranda", "Mark")
+
+  users.flatMap { (name: String) =>
+    courses.map { (course: String) => 
+      new Invitation(
+        "Dear " + name + ", we'd like to invite " +
+        "you to our course " + course + ".") 
+    }
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## `for`-comprehensions are syntactic sugar for this.
+
+```scala
+def collectInvitations(): List[Invitation] = {
+  val courses = List(...)
+  val users = List("Brian", "Miranda", "Mark")
+
+  for {
+    course <- courses
+    user   <- users
+  } yield {
+    new Invitation(
+      "Dear " + user + ", we'd like to invite " +
+      "you to our course " + A + ".")
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### A simple `for-yield`-combination
+
+```scala
+
+for { x <- List(1,2,3) } yield { x*x }
+```
+
+### will be desugared to `map`
+
+```scala
+
+List(1,2,3).map {x => x*x}
+```
+</script></section><section data-markdown><script type="text/template">
+### A `for`
+
+```scala
+for(x <- List(1,2,3))
+  println(x)
+```
+
+### will be desugared to `foreach`
+
+```scala
+
+List(1,2,3).foreach{x => println(x)}
+```
+</script></section><section data-markdown><script type="text/template">
+### Nested `for-yield`s
+
+```scala
+for(
+  x <- List(1,2,3); 
+  y <- List(4,5,6))
+yield x*y
+```
+
+### will be desugared to `flatMap`s and `map`s
+
+```scala
+List(1,2,3).flatMap { x =>
+  List(4,5,6).map { y =>
+    x*y
+  }
+}```
+</script></section></section><section ><section data-markdown><script type="text/template">
+### `for`-comprehensions work with every type that implements `map` and `flatMap`
+
+##### and `filter`, `withFilter`, `foreach`
+</script></section><section data-markdown><script type="text/template">
+**Option[+T]**
+
+**Try[+T]**
+
+**Future[+T]**
+
+**Either[+A, +B]**
+
+**List[+A]**
+
+**Stream[+A]**
+
+</script></section></section></div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            function extend() {
+              var target = {};
+              for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                  if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                  }
+                }
+              }
+              return target;
+            }
+
+            // Optional libraries used to extend on reveal.js
+            var deps = [
+              { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+              { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+              { src: 'plugin/math/math.js', async: true }
+            ];
+
+            // default options to init reveal.js
+            var defaultOptions = {
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              transition: 'default',
+              dependencies: deps
+            };
+
+            // options from URL query string
+            var queryOptions = Reveal.getQueryHash() || {};
+
+            var options = {};
+            options = extend(defaultOptions, options, queryOptions);
+            Reveal.initialize(options);
+        </script>
+    </body>
+</html>
