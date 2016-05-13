@@ -213,83 +213,13 @@ object Adder {
 
 ---
 
-### A motivating example
+### Part III: Patterns for Properties
 
-```scala
-object Fizzbuzz extends App {
+---
 
-  def fizzbuzz(n: Int): String = n match {
-    case _ if n % 15 == 0 => "FizzBuzz"
-    case _ if n % 3 == 0 => "Fizz"
-    case _ if n % 5 == 0 => "Buzz"
-    case _ => n.toString
-  }
+### Part IV: Generators
 
-  println((1 to 100).map(fizzbuzz(_)).mkString(" "))
-}
-```
-
-----
-
-### How do we test our implementation?
-
-----
-
-```scala
-class FizzbuzzUnitSpec extends FlatSpec with Matchers {
-  "Fizzbuzz" should 
-    "yield 'Fizz' for a number that is not divisible by 5 but by 3" in {
-      Fizzbuzz.fizzbuzz(3) shouldBe "Fizz"
-  }
-  "Fizzbuzz" should 
-    "yield 'Buzz' for a number that is not divisible by 3 but by 5" in {
-      Fizzbuzz.fizzbuzz(5) shouldBe "Buzz"
-  }
-  "Fizzbuzz" should 
-    "yield 'FizzBuzz' for a number that is divisible by 15" in {
-      Fizzbuzz.fizzbuzz(15) shouldBe "FizzBuzz"
-  }
-  "Fizzbuzz" should 
-    "yield identity for a number that is not divisible by 3 or by 5" in {
-      Fizzbuzz.fizzbuzz(1) shouldBe "1"
-  }
-}
-```
-
-----
-
-### What about these?
-
-* 38
-* 60
-* 99
-* 12932
-* 293402
-* -23424
-* 0
-* `Int.MaxValue`
-
-----
-
-### What are the properties that `fizzbuzz` must satisfy?
-
-* Any number that is wholly divisible by 3 must be translated to `Fizz`.
-* Any number that is wholly divisible by 5 must be translated to `Buzz`.
-* Any number that is wholly divisible by 15 must be translated to `FizzBuzz`.
-* All other numbers are returned as-is.
-
-----
-
-### How can we generate such numbers?
-
-```scala
-val numberGen = Gen.choose(Int.MinValue / 15, Int.MaxValue / 15)
-val divisibleByThreeNotFive = numberGen
-   .suchThat(n => n % 5 != 0)
-   .map(n => n * 3)
-```
-
-----
+---
 
 ### `Gen` provides a rich set of basic generators
 
@@ -305,32 +235,17 @@ val divisibleByThreeNotFive = numberGen
 
 ----
 
-### Generators
+### Generators are composable
 
 ```scala
-prop((n: Int) => (fizzbuzz(n) mustEqual "Fizz"))
-  .setGen(divisibleByThreeNotFive)
+val tupleGen = for {
+  n <- Gen.choose(1, 50)
+  m <- Gen.choose(n, 2*n)
+} yield (n, m)
+val listOfTupleGen = Gen.listOf(tupleGen)
 ```
 
 ----
-
-### The output should look like this.
-
-```
-[info] FizzbuzzSpec
-[info] 
-[info]   FizzBuzz should
-[info]     + yield 'Fizz' for a number wholly divisible by 3
-[info] 
-[info] Total for specification FizzbuzzSpec
-[info] Finished in 96 ms
-[info] 1 examples, 100 expectations, 0 failure, 0 error
-[info] 
-[info] ScalaCheck
-[info] Passed: Total 0, Failed 0, Errors 0, Passed 0
-```
-
----
 
 ### How can we turn this into a property-based test?
 
@@ -410,4 +325,114 @@ forAll { (u: Username, p: Postcode) => ... }
 forAll { (u1: Username, u2: Username) => ... }
 
 forAll { (p: List[Postcode] => ... }
+```
+---
+
+### Part V: Shrinking
+
+---
+
+### A motivating example
+
+```scala
+object Fizzbuzz extends App {
+
+  def fizzbuzz(n: Int): String = n match {
+    case _ if n % 15 == 0 => "FizzBuzz"
+    case _ if n % 3 == 0 => "Fizz"
+    case _ if n % 5 == 0 => "Buzz"
+    case _ => n.toString
+  }
+
+  println((1 to 100).map(fizzbuzz(_)).mkString(" "))
+}
+```
+
+----
+
+### How do we test our implementation?
+
+----
+
+```scala
+class FizzbuzzUnitSpec extends FlatSpec with Matchers {
+  "Fizzbuzz" should 
+    "yield 'Fizz' for a number that is not divisible by 5 but by 3" in {
+      Fizzbuzz.fizzbuzz(3) shouldBe "Fizz"
+  }
+  "Fizzbuzz" should 
+    "yield 'Buzz' for a number that is not divisible by 3 but by 5" in {
+      Fizzbuzz.fizzbuzz(5) shouldBe "Buzz"
+  }
+  "Fizzbuzz" should 
+    "yield 'FizzBuzz' for a number that is divisible by 15" in {
+      Fizzbuzz.fizzbuzz(15) shouldBe "FizzBuzz"
+  }
+  "Fizzbuzz" should 
+    "yield identity for a number that is not divisible by 3 or by 5" in {
+      Fizzbuzz.fizzbuzz(1) shouldBe "1"
+  }
+}
+```
+
+----
+
+### What about these?
+
+* 38
+* 60
+* 99
+* 12932
+* 293402
+* -23424
+* 0
+* `Int.MaxValue`
+
+----
+
+### What are the properties that `fizzbuzz` must satisfy?
+
+* Any number that is wholly divisible by 3 must be translated to `Fizz`.
+* Any number that is wholly divisible by 5 must be translated to `Buzz`.
+* Any number that is wholly divisible by 15 must be translated to `FizzBuzz`.
+* All other numbers are returned as-is.
+
+----
+
+### How can we generate such numbers?
+
+```scala
+val numberGen = Gen.choose(Int.MinValue / 15, Int.MaxValue / 15)
+val divisibleByThreeNotFive = numberGen
+   .suchThat(n => n % 5 != 0)
+   .map(n => n * 3)
+```
+
+----
+
+----
+
+### Generators
+
+```scala
+prop((n: Int) => (fizzbuzz(n) mustEqual "Fizz"))
+  .setGen(divisibleByThreeNotFive)
+```
+
+----
+
+### The output should look like this.
+
+```
+[info] FizzbuzzSpec
+[info] 
+[info]   FizzBuzz should
+[info]     + yield 'Fizz' for a number wholly divisible by 3
+[info] 
+[info] Total for specification FizzbuzzSpec
+[info] Finished in 96 ms
+[info] 1 examples, 100 expectations, 0 failure, 0 error
+[info] 
+[info] ScalaCheck
+[info] Passed: Total 0, Failed 0, Errors 0, Passed 0
 ```
