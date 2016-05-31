@@ -77,7 +77,7 @@ class AddUnitTest extends FlatSpec with Matchers {
 ```scala
 object Adder {
 
-  def add1(a: Int, b: Int): Int =
+  def add(a: Int, b: Int): Int =
     4
 }
 ```
@@ -86,9 +86,7 @@ object Adder {
 
 ### TDD Best Practices
 
-**Write the minimal code that will make the test pass.**
-
-* Just write code that makes the test pass.
+* **Write the minimal code that will make the test pass.**
 * Code written at this stage will not be 100% final.
 * Do not write the perfect code at this stage.
 
@@ -119,7 +117,7 @@ forAll {
 ```scala
 object Adder {
 
-  def add1(a: Int, b: Int): Int =
+  def add(a: Int, b: Int): Int =
     a * b
 }
 ```
@@ -215,6 +213,42 @@ object Adder {
 
 ### Part III: Patterns for Properties
 
+----
+
+### Different Paths, Same Destination
+
+![Different Paths, Same Destination](./pbt-patterns-diff-path-same-dest.svg)
+
+----
+
+### There And Back Again
+
+![There And Back Again](./pbt-patterns-there-and-back-again.svg)
+
+----
+
+### Some Things Never Change
+
+![Some Things Never Change](./pbt-patterns-some-things-never-change.svg)
+
+----
+
+### The More Things Change, The More They Stay The Same
+
+![There More Things Change](./pbt-patterns-the-more-things-change.svg)
+
+----
+
+### Solve A Smaller Problem First
+
+![Solve A Smaller Problem First](./pbt-patterns-smaller-problems-first.svg)
+
+----
+
+### Hard To Prove, Easy To Verify
+
+![Hard To Prove, Easy To Verify](./pbt-patterns-hard-to-prove-easy-to-verify.svg)
+
 ---
 
 ### Part IV: Generators
@@ -306,11 +340,11 @@ object Postcode {
 ### Invest in generators for your domain objects
 
 ```scala
-def genUsername: Gen[Username] =
+implicit def usernameGen: Gen[Username] =
   Gen.nonEmptyListOf(Gen.alphaChar)
      .map(Username.fromString)
 
-def genPostcode: Gen[Postcode] =
+implicit def postcodeGen: Gen[Postcode] =
   Gen.choose(10000, 99999)
      .map(Postcode.fromInt)
 ```
