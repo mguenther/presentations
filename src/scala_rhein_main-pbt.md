@@ -253,19 +253,19 @@ object Adder {
 
 ### Part IV: Generators
 
----
+----
 
-### `Gen` provides a rich set of basic generators
+<h3>Gen provides a rich set of basic generators</h3>
 
-* `choose`
-* `oneOf`
-* `lzy`
-* `listOf`
-* `listOfN`
-* `alphaNum`
-* `alphaStr`
-* `identifier`
-* ...
+<section>
+	<p class="fragment" data-fragment-index="1">choose</p>
+	<p class="fragment" data-fragment-index="2">oneOf</p>
+	<p class="fragment" data-fragment-index="3">lzy</p>
+	<p class="fragment" data-fragment-index="4">listOf / listOfN</p>
+	<p class="fragment" data-fragment-index="5">alphaNum / alphaStr</p>
+	<p class="fragment" data-fragment-index="6">identifier</p>
+	<p class="fragment" data-fragment-index="7">...</p>
+</section>
 
 ----
 
@@ -293,7 +293,7 @@ def dbShouldReturnPreviouslySavedUser = {
 
 ----
 
-### Replace free variables with properties.
+### Replace free variables with properties
 
 ```scala
 forAll { (name: String, postcode: Int) =>
@@ -360,113 +360,78 @@ forAll { (u1: Username, u2: Username) => ... }
 
 forAll { (p: List[Postcode] => ... }
 ```
+
 ---
 
 ### Part V: Shrinking
 
+----
+
+#### Suppose you have some silly property like this
+
+```scala
+class LowerThanSpec extends Specification with ScalaCheck {
+
+  "isLowerThan80" should {
+    "yield true for all integers < 80" in {
+      Prop.forAll((x: Int) => {
+        isLowerThan80(x) mustEqual true
+      })
+    }
+  }
+}
+```
+
+----
+
+### Running this test yields
+
+```
+[info] LowerThanSpec
+[info] 
+[info] isLowerThan80 should
+[error]   x yield true for all integers < 80
+[error]    Falsified after 5 passed tests.
+[error]    > ARG_0: 80
+[error]    > ARG_0_ORIGINAL: 100
+[error]    > the value is not equal to 'true' (LowerThanSpec.scala:8)
+```
+
+----
+
+### How does it get from 100 to 80?
+
+
+```scala
+// Inputs might be: [0, 50, 75, 88, 94, 97, 99]
+isLowerThan80(0)      // -> true
+isLowerThan80(50)     // -> true
+isLowerThan80(75)     // -> true
+isLowerThan80(88)     // -> false
+```
+
+* Generates a sequence of inputs < 100
+* Checks if it finds other counterexamples in those inputs
+* Starts over with 88 until it finds no smaller counterexamples
+
+----
+
+#### If you implement a generator for your domain objects, you probably want to implement a shrinker too!
+
 ---
 
-### A motivating example
+### Takeaway
 
-```scala
-object Fizzbuzz extends App {
+* Property tests live longer than unit tests
+* Tendency to find different bugs
+* Less code, so more maintainable
+  * Requires helper functions 
+  * Generators / Shrinkers can be complex
+* Do not rely on PBT solely! Use it alongside other approaches
+* Use random generators for Strings with care!
 
-  def fizzbuzz(n: Int): String = n match {
-    case _ if n % 15 == 0 => "FizzBuzz"
-    case _ if n % 3 == 0 => "Fizz"
-    case _ if n % 5 == 0 => "Buzz"
-    case _ => n.toString
-  }
+---
 
-  println((1 to 100).map(fizzbuzz(_)).mkString(" "))
-}
-```
+# Thank you!
 
-----
-
-### How do we test our implementation?
-
-----
-
-```scala
-class FizzbuzzUnitSpec extends FlatSpec with Matchers {
-  "Fizzbuzz" should 
-    "yield 'Fizz' for a number that is not divisible by 5 but by 3" in {
-      Fizzbuzz.fizzbuzz(3) shouldBe "Fizz"
-  }
-  "Fizzbuzz" should 
-    "yield 'Buzz' for a number that is not divisible by 3 but by 5" in {
-      Fizzbuzz.fizzbuzz(5) shouldBe "Buzz"
-  }
-  "Fizzbuzz" should 
-    "yield 'FizzBuzz' for a number that is divisible by 15" in {
-      Fizzbuzz.fizzbuzz(15) shouldBe "FizzBuzz"
-  }
-  "Fizzbuzz" should 
-    "yield identity for a number that is not divisible by 3 or by 5" in {
-      Fizzbuzz.fizzbuzz(1) shouldBe "1"
-  }
-}
-```
-
-----
-
-### What about these?
-
-* 38
-* 60
-* 99
-* 12932
-* 293402
-* -23424
-* 0
-* `Int.MaxValue`
-
-----
-
-### What are the properties that `fizzbuzz` must satisfy?
-
-* Any number that is wholly divisible by 3 must be translated to `Fizz`.
-* Any number that is wholly divisible by 5 must be translated to `Buzz`.
-* Any number that is wholly divisible by 15 must be translated to `FizzBuzz`.
-* All other numbers are returned as-is.
-
-----
-
-### How can we generate such numbers?
-
-```scala
-val numberGen = Gen.choose(Int.MinValue / 15, Int.MaxValue / 15)
-val divisibleByThreeNotFive = numberGen
-   .suchThat(n => n % 5 != 0)
-   .map(n => n * 3)
-```
-
-----
-
-----
-
-### Generators
-
-```scala
-prop((n: Int) => (fizzbuzz(n) mustEqual "Fizz"))
-  .setGen(divisibleByThreeNotFive)
-```
-
-----
-
-### The output should look like this.
-
-```
-[info] FizzbuzzSpec
-[info] 
-[info]   FizzBuzz should
-[info]     + yield 'Fizz' for a number wholly divisible by 3
-[info] 
-[info] Total for specification FizzbuzzSpec
-[info] Finished in 96 ms
-[info] 1 examples, 100 expectations, 0 failure, 0 error
-[info] 
-[info] ScalaCheck
-[info] Passed: Total 0, Failed 0, Errors 0, Passed 0
-```
+## Any Questions?
