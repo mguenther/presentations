@@ -1,0 +1,418 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Reveal.js</title>
+        <link rel="stylesheet" href="/css/reveal.css">
+        <link rel="stylesheet" href="/theme/white.css" id="theme">
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="/lib/css/github.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+          document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+    </head>
+    <body>
+
+        <div class="reveal">
+            <div class="slides"><section  data-markdown><script type="text/template">## Property-Based Testing
+
+Markus Günther
+
+[markus.guenther@gmail.com](mailto:markus.guenther@gmail.com) | [habitat47.de](http://www.habitat47.de) | [@mguenther](https://twitter.com/mguenther)
+</script></section><section ><section data-markdown><script type="text/template">
+### Part I: A Motivating Example
+</script></section><section data-markdown><script type="text/template">
+### For some reason we are tasked with the implementation of a custom `add` function
+</script></section><section data-markdown><script type="text/template">
+### Of course, we want to test our implementation
+</script></section><section data-markdown><script type="text/template">
+```scala
+class AddUnitTest extends FlatSpec with Matchers {
+
+  "Adder" should "yield 4 when I add 1 + 3" in {
+    add(1, 3) shouldBe 4
+  }
+
+  "Adder" should "yield 4 when I add 2 + 2" in {
+    add(2, 2) shouldBe 4
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Some time later, ops comes back with errors in production wrt. `add`
+</script></section><section data-markdown><script type="text/template">
+```scala
+class AddUnitTest extends FlatSpec with Matchers {
+
+  [...]
+
+  "Adder" should "yield 2 when I add -1 + 3" in {
+    add(-1, 3) shouldBe 2
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Boom!
+
+```
+[info] Adder
+[info] - should yield 2 when I add -1 + 3 *** FAILED ***
+[info]   4 was not equal to 2 (AddUnitTest.scala:17)
+[info] ScalaCheck
+[info] Passed: Total 0, Failed 0, Errors 0, Passed 0
+[info] ScalaTest
+[info] Run completed in 212 milliseconds.
+[info] Total number of tests run: 3
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 2, failed 1, canceled 0, ignored 0, pending 0
+[info] *** 1 TEST FAILED ***
+```
+</script></section><section data-markdown><script type="text/template">
+### What happened?
+</script></section><section data-markdown><script type="text/template">
+### Let us take a look at the implementation
+
+```scala
+object Adder {
+
+  def add(a: Int, b: Int): Int =
+    4
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### TDD Best Practices
+
+* **Write the minimal code that will make the test pass.**
+* Code written at this stage will not be 100% final.
+* Do not write the perfect code at this stage.
+</script></section></section><section ><section data-markdown><script type="text/template">
+### Part II: Property-Based Testing
+</script></section><section data-markdown><script type="text/template">
+### What are the requirements for `add`?
+</script></section><section data-markdown><script type="text/template">
+### Property: Adding two numbers should not depend on parameter order
+
+```scala
+forAll {
+  (a: Int, b: Int) => {
+    add(a, b) == add(b, a)
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Refactoring `add` - take #1
+
+```scala
+object Adder {
+
+  def add(a: Int, b: Int): Int =
+    a * b
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Property: Adding 1 twice to a number is the same as adding 2 once to the same number.
+
+```scala
+forAll {
+  (a: Int) => {
+    add(add(a, 1), 1) == add(a, 2)
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Let's see if our tests pass
+
+```
++ adding two numbers should not depend on parameter order: OK [...]
+! adding 1 twice is the same as adding 2 once: Falsified      [...]
+[info] > ARG_0: 1
+ScalaCheck
+Failed: Total 2, Failed 1, Errors 0, Passed 1
+```
+</script></section><section data-markdown><script type="text/template">
+### Refactoring `add` - take #2
+
+```scala
+object Adder {
+
+  def add(a: Int, b: Int): Int =
+    0
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Tests pass, but we do not check if the result is somehow connected to the input.
+</script></section><section data-markdown><script type="text/template">
+### Property: Adding zero is the same as doing nothing
+
+```scala
+forAll {
+  (a: Int) => {
+    add(a, 0) == a
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+```scala
+object AddSpec extends Properties("Adder") {
+  property("adding two numbers should not depend on parameter order") = forAll {
+    (a: Int, b: Int) => { 
+      add(a, b) == add(b, a) 
+    }
+  }
+  property("adding 1 twice is the same as adding 2 once") = forAll {
+    (a: Int) => { 
+      add(add(a, 1), 1) == add(a, 2) 
+    }
+  }
+  property("adding zero is the same as doing nothing") = forAll {
+    (a: Int) => { 
+      add(a, 0) == a 
+    }
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### The only correct implementation that satisfies this specification is
+
+
+```scala
+object Adder {
+
+  def add(a: Int, b: Int): Int =
+    a + b
+}
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+### Part III: Patterns for Properties
+</script></section><section data-markdown><script type="text/template">
+### Different Paths, Same Destination
+
+![Different Paths, Same Destination](./pbt-patterns-diff-path-same-dest.svg)
+</script></section><section data-markdown><script type="text/template">
+### There And Back Again
+
+![There And Back Again](./pbt-patterns-there-and-back-again.svg)
+</script></section><section data-markdown><script type="text/template">
+### Some Things Never Change
+
+![Some Things Never Change](./pbt-patterns-some-things-never-change.svg)
+</script></section><section data-markdown><script type="text/template">
+### The More Things Change, The More They Stay The Same
+
+![There More Things Change](./pbt-patterns-the-more-things-change.svg)
+</script></section><section data-markdown><script type="text/template">
+### Solve A Smaller Problem First
+
+![Solve A Smaller Problem First](./pbt-patterns-smaller-problems-first.svg)
+</script></section><section data-markdown><script type="text/template">
+### Hard To Prove, Easy To Verify
+
+![Hard To Prove, Easy To Verify](./pbt-patterns-hard-to-prove-easy-to-verify.svg)
+</script></section></section><section ><section data-markdown><script type="text/template">
+### Part IV: Generators
+</script></section><section data-markdown><script type="text/template">
+<h3>Gen provides a rich set of basic generators</h3>
+
+<section>
+	<p class="fragment" data-fragment-index="1">choose</p>
+	<p class="fragment" data-fragment-index="2">oneOf</p>
+	<p class="fragment" data-fragment-index="3">lzy</p>
+	<p class="fragment" data-fragment-index="4">listOf / listOfN</p>
+	<p class="fragment" data-fragment-index="5">alphaNum / alphaStr</p>
+	<p class="fragment" data-fragment-index="6">identifier</p>
+	<p class="fragment" data-fragment-index="7">...</p>
+</section>
+</script></section><section data-markdown><script type="text/template">
+### Generators are composable
+
+```scala
+val tupleGen = for {
+  n <- Gen.choose(1, 50)
+  m <- Gen.choose(n, 2*n)
+} yield (n, m)
+val listOfTupleGen = Gen.listOf(tupleGen)
+```
+</script></section><section data-markdown><script type="text/template">
+### How can we turn this into a property-based test?
+
+```scala
+def dbShouldReturnPreviouslySavedUser = {
+  val user = User("jon doe", 64293)
+  val userId = db.insert(user)
+  db.load(id) == Some(user)
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Replace free variables with properties
+
+```scala
+forAll { (name: String, postcode: Int) =>
+  val user = User(name, postcode)
+  val userId = db.insert(user)
+  db.load(id) == Some(user)
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### scalacheck knows how to generate `String`s and `Int`s
+
+```scala
+forAll { (name: String, postcode: Int) =>
+  val user = User(name, postcode)
+  val userId = db.insert(user)
+  db.load(id) == Some(user)
+}
+```
+
+* Invalid username: `""`
+* Invalid postcode: -1
+</script></section><section data-markdown><script type="text/template">
+### Use types to be more precise!
+
+```scala
+class Postcode private(val value: Int) extends AnyVal
+
+object Postcode {
+  
+  def fromInt(i: Int): Option[Postcode] =
+    if (i >= 10000 || i < 100000)
+      Some(new Postcode(i))
+    else
+      None
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Invest in generators for your domain objects
+
+```scala
+implicit def usernameGen: Gen[Username] =
+  Gen.nonEmptyListOf(Gen.alphaChar)
+     .map(Username.fromString)
+
+implicit def postcodeGen: Gen[Postcode] =
+  Gen.choose(10000, 99999)
+     .map(Postcode.fromInt)
+```
+</script></section><section data-markdown><script type="text/template">
+### With this scalacheck knows how to generate `Username`s and `Postcode`s
+
+```scala
+forAll { (u: Username, p: Postcode) => ... }
+
+forAll { (u1: Username, u2: Username) => ... }
+
+forAll { (p: List[Postcode] => ... }
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+### Part V: Shrinking
+</script></section><section data-markdown><script type="text/template">
+#### Suppose you have some silly property like this
+
+```scala
+class LowerThanSpec extends Specification with ScalaCheck {
+
+  "isLowerThan80" should {
+    "yield true for all integers < 80" in {
+      Prop.forAll((x: Int) => {
+        isLowerThan80(x) mustEqual true
+      })
+    }
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Running this test yields
+
+```
+[info] LowerThanSpec
+[info] 
+[info] isLowerThan80 should
+[error]   x yield true for all integers < 80
+[error]    Falsified after 5 passed tests.
+[error]    > ARG_0: 80
+[error]    > ARG_0_ORIGINAL: 100
+[error]    > the value is not equal to 'true' (LowerThanSpec.scala:8)
+```
+</script></section><section data-markdown><script type="text/template">
+### How does it get from 100 to 80?
+
+
+```scala
+// Inputs might be: [0, 50, 75, 88, 94, 97, 99]
+isLowerThan80(0)      // -> true
+isLowerThan80(50)     // -> true
+isLowerThan80(75)     // -> true
+isLowerThan80(88)     // -> false
+```
+
+* Generates a sequence of inputs < 100
+* Checks if it finds other counterexamples in those inputs
+* Starts over with 88 until it finds no smaller counterexamples
+</script></section><section data-markdown><script type="text/template">
+#### If you implement a generator for your domain objects, you probably want to implement a shrinker too!
+</script></section></section><section  data-markdown><script type="text/template">
+### Takeaway
+
+* Property tests live longer than unit tests
+* Tendency to find different bugs
+* Less code, so more maintainable
+  * Requires helper functions 
+  * Generators / Shrinkers can be complex
+* Do not rely on PBT solely! Use it alongside other approaches
+* Use random generators for Strings with care!
+</script></section><section  data-markdown><script type="text/template">
+# Thank you!
+
+## Any Questions?
+</script></section></div>
+        </div>
+
+        <script src="/lib/js/head.min.js"></script>
+        <script src="/js/reveal.js"></script>
+
+        <script>
+            function extend() {
+              var target = {};
+              for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                  if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                  }
+                }
+              }
+              return target;
+            }
+
+            // Optional libraries used to extend on reveal.js
+            var deps = [
+              { src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+              { src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: '/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+              { src: '/plugin/math/math.js', async: true }
+            ];
+
+            // default options to init reveal.js
+            var defaultOptions = {
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              transition: 'default',
+              dependencies: deps
+            };
+
+            // options from URL query string
+            var queryOptions = Reveal.getQueryHash() || {};
+
+            var options = {};
+            options = extend(defaultOptions, options, queryOptions);
+            Reveal.initialize(options);
+        </script>
+    </body>
+</html>
+
