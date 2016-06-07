@@ -22,11 +22,11 @@ Markus Günther
 class AddUnitTest extends FlatSpec with Matchers {
 
   "Adder" should "yield 4 when I add 1 + 3" in {
-    add1(1, 3) shouldBe 4
+    add(1, 3) shouldBe 4
   }
 
   "Adder" should "yield 4 when I add 2 + 2" in {
-    add1(2, 2) shouldBe 4
+    add(2, 2) shouldBe 4
   }
 }
 ```
@@ -43,7 +43,7 @@ class AddUnitTest extends FlatSpec with Matchers {
   [...]
 
   "Adder" should "yield 2 when I add -1 + 3" in {
-    add1(-1, 3) shouldBe 2
+    add(-1, 3) shouldBe 2
   }
 }
 ```
@@ -153,7 +153,7 @@ Failed: Total 2, Failed 1, Errors 0, Passed 1
 ```scala
 object Adder {
 
-  def add1(a: Int, b: Int): Int =
+  def add(a: Int, b: Int): Int =
     0
 }
 ```
@@ -204,7 +204,7 @@ object AddSpec extends Properties("Adder") {
 ```scala
 object Adder {
 
-  def add1(a: Int, b: Int): Int =
+  def add(a: Int, b: Int): Int =
     a + b
 }
 ```
