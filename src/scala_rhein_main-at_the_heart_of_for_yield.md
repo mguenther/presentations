@@ -1,6 +1,8 @@
 ## At the Heart of `for-yield`
 
-Markus Günther
+**Markus Günther**
+
+Rhein-Main Scala Enthusiasts (2016/02/02)
 
 [markus.guenther@gmail.com](mailto:markus.guenther@gmail.com) | [habitat47.de](http://www.habitat47.de) | [@mguenther](https://twitter.com/mguenther)
 

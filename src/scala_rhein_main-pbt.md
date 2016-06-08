@@ -1,6 +1,8 @@
 ## Property-Based Testing
 
-Markus Günther
+**Markus Günther**
+
+Rhein-Main Scala Enthusiasts (2016/06/07)
 
 [markus.guenther@gmail.com](mailto:markus.guenther@gmail.com) | [habitat47.de](http://www.habitat47.de) | [@mguenther](https://twitter.com/mguenther)
 
@@ -435,3 +437,18 @@ isLowerThan80(88)     // -> false
 # Thank you!
 
 ## Any Questions?
+
+---
+
+### Sources
+
+#### Conference Talks
+
+* [Property-Based Testing for Better Code](https://www.youtube.com/watch?v=shngiiBfD80) (Jessica Kerr @ Midwest.io 2014)  
+* [Property-Based Testing: Shrinking Risk In Your Code](https://www.youtube.com/watch?v=hNhHmbiw4Rw) (Amanda Launcher @ YOW! 2015)
+* [I Dream of Gen'ning: ScalaCheck Beyond the Basics](https://www.youtube.com/watch?v=lgyGFG6hBa0) (Kelsey Gilmore-Innis @ SBTB 2014)
+* [How I learned to stop unit testing and love Property-Based Testing](http://blog.charleso.org/property-testing-preso/yowlj2015.html) (Charles O'Farrell)
+
+#### Blogs
+
+* [Choosing Properties for Property-Based Testing](https://fsharpforfunandprofit.com/posts/property-based-testing-2/) (Scott Wlaschin)
