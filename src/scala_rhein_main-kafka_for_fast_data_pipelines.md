@@ -9,11 +9,15 @@ Freelance Software Engineer / Architect
 
 ---
 
+
+
+---
+
 ## Best Practices
 
 ----
 
-### Use a consistent serialization mechanism
+### #1: Use a consistent serialization mechanism
 
 ----
 
@@ -23,14 +27,6 @@ Freelance Software Engineer / Architect
 2. Use language-agnostic formats
 3. Invent your own serialization on top of a language-agnostic one
 4. Schema and documentation for the win!
-
-----
-
-#### Which serialization framework should I use?
-
-* Apache Thrift
-* Apache Avro
-* Google Protocol Buffers
 
 ----
 
@@ -47,6 +43,7 @@ Freelance Software Engineer / Architect
   * Primitive Types: boolean, int, long, string, etc.
   * Complex Types: Record, Enum, Array, Union, Map, Fixed
 * Data is (de-)serialized using its schema
+* Compact binary output
 
 ----
 
@@ -80,6 +77,8 @@ protocol SimpleExample {
 
 ----
 
+A JSON-based representation of ```Message```
+
 ```json
 {
   "messageId": "f9ae42fc",
@@ -87,7 +86,7 @@ protocol SimpleExample {
 }
 ```
 
-is translated into this
+is compiled to this using Apache Avro
 
 ![Avro-Encoded-Message](./kafka-avro_encoded_message.svg)
 
@@ -132,6 +131,42 @@ def deserialize(payload: Array[Byte]): Option[T] =
     case ex: Exception => None
   }
 ```
+
+----
+
+### #2: Use idempotent message handlers if possible
+
+----
+
+### #3: Use a de-duplication filter if messages are non-idempotent
+
+----
+
+### #4: Disable unclean leader election
+
+----
+
+### #5: Do not use mirroring for disaster recovery
+
+----
+
+### #6: Do not use mirroring for a chain-of-replication
+
+----
+
+### #7: Disable automatic topic creation in production
+
+----
+
+### #8: Commit consumer offsets manually
+
+----
+
+### #9: Monitor the size of in-sync-replica sets
+
+----
+
+### #10: Use a consistent hashing scheme for keyed messages
 
 ---
 
