@@ -1,4 +1,4 @@
-# Apache Kafka
+# Apache [Kafka]()
 ## for Fast Data Pipelines
 
 **Markus Günther**
@@ -9,7 +9,33 @@ Freelance Software Engineer / Architect
 
 ---
 
+## Enter Apache [Kafka]()
 
+----
+
+### [Key Innovations]()<!-- .element: class="fragment" data-fragment-index="0" -->
+
+* Messages are acknowledged in order<!-- .element: class="fragment" data-fragment-index="1" -->
+* Messages are persisted for days / weeks<!-- .element: class="fragment" data-fragment-index="2" -->
+* Consumers can manage their offsets<!-- .element: class="fragment" data-fragment-index="3" -->
+
+----
+
+### General Arrangement of a [Kafka]() Cluster
+
+![Architectural-Overview](./kafka-architectural_overview.svg)
+
+----
+
+### Relationships between [Producers](), [Consumers](), [Topics]()
+
+![Relationships-Producers-Consumers-Topics](./kafka-relationships_between_producers_consumers_topics.svg)
+
+----
+
+### [Topics]() and [Partitions]() are distributed
+
+![Topics-And-Partitions-Are-Distributed](./kafka-topics_and_partitions_are_distributed.svg)
 
 ---
 
@@ -17,7 +43,7 @@ Freelance Software Engineer / Architect
 
 ----
 
-### #1: Use a consistent serialization mechanism
+### [#1:]() Use a consistent [serialization mechanism]()
 
 ----
 
@@ -30,13 +56,13 @@ Freelance Software Engineer / Architect
 
 ----
 
-#### Which serialization framework should I use?
+#### Which [serialization framework]() should I use?
 
 ![Serialization-Comparison](./kafka-serialization_comparison.png)
 
 ----
 
-#### Apache Avro is suitable for streaming applications
+#### [Apache Avro]() is suitable for streaming applications
 
 * Schema representation in JSON or an IDL
 * Supports the usual types
@@ -47,7 +73,7 @@ Freelance Software Engineer / Architect
 
 ----
 
-### How does a schema look like in Apache Avro?
+### How does a schema look like in [Apache Avro]()?
 
 ```json
 {
@@ -63,7 +89,7 @@ Freelance Software Engineer / Architect
 
 ----
 
-### ... or using an IDL
+### ... or using an [IDL]()
 
 ```
 @namespace("com.mgu.kafkaexamples.avro")
@@ -92,7 +118,7 @@ is compiled to this using Apache Avro
 
 ----
 
-### How can I include Avro in my Scala project?
+### How can I include [Avro]() in my Scala project?
 
 ```scala
 libraryDependencies ++= Seq(
@@ -109,7 +135,7 @@ javaSource in sbtavro.SbtAvro.avroConfig <<= (sourceDirectory in Compile)(_ / "g
 
 ----
 
-### Use ```bijection-avro``` for bijective mappings
+### Use [```bijection-avro```]() for bijective mappings
 
 ```scala
 def serialize(payload: T): Option[Array[Byte]] = 
@@ -134,39 +160,39 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ----
 
-### #2: Use idempotent message handlers if possible
+### [#2:]() Use idempotent message handlers if possible
 
 ----
 
-### #3: Use a de-duplication filter if messages are non-idempotent
+### [#3:]() Use a de-duplication filter if messages are non-idempotent
 
 ----
 
-### #4: Disable unclean leader election
+### [#4:]() Disable unclean leader election
 
 ----
 
-### #5: Do not use mirroring for disaster recovery
+### [#5:]() Do not use mirroring for disaster recovery
 
 ----
 
-### #6: Do not use mirroring for a chain-of-replication
+### [#6:]() Do not use mirroring for a chain-of-replication
 
 ----
 
-### #7: Disable automatic topic creation in production
+### [#7:]() Disable automatic topic creation in production
 
 ----
 
-### #8: Commit consumer offsets manually
+### [#8:]() Commit consumer offsets manually
 
 ----
 
-### #9: Monitor the size of in-sync-replica sets
+### [#9:]() Monitor the size of in-sync-replica sets
 
 ----
 
-### #10: Use a consistent hashing scheme for keyed messages
+### [#10:]() Use a consistent hashing scheme for keyed messages
 
 ---
 
