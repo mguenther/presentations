@@ -37,6 +37,12 @@ Freelance Software Engineer / Architect
 
 ![Topics-And-Partitions-Are-Distributed](./kafka-topics_and_partitions_are_distributed.svg)
 
+----
+
+### [Append-Only]() Logs Consumed [Sequentially]()
+
+![Anatomy-Of-The-Kafka-Log](./kafka-anatomy_of_the_kafka_log.svg)
+
 ---
 
 ## Best Practices
