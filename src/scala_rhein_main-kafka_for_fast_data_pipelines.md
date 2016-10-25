@@ -43,6 +43,69 @@ Freelance Software Engineer / Architect
 
 ![Anatomy-Of-The-Kafka-Log](./kafka-anatomy_of_the_kafka_log.svg)
 
+----
+
+### So, how fast is this thing?
+
+![Performance-Comparison](./kafka-producer_and_consumer_performance.png)
+
+----
+
+### The [KafkaProducer]() API
+
+```scala
+object SimpleProducer extends App {
+
+  val props = new Properties
+  props.put("bootstrap.servers", "127.0.0.1:9092")
+  props.put("key.serializer",
+    "org.apache.kafka.common.serialization.StringSerializer")
+  props.put("value.serializer",
+    "org.apache.kafka.common.serialization.StringSerializer")
+
+  val producer = new KafkaProducer[String, String](props)
+
+  (1 to 100).foreach(i => {
+    val message = new ProducerRecord[String, String](
+      "test", 
+      i.toString, // key
+      i.toString) // payload
+    producer.send(message)
+  })
+
+  producer.close()
+}
+
+```
+
+----
+
+### The [KafkaConsumer]() API
+
+```scala
+object SimpleConsumer extends App {
+
+  val props = new Properties
+  props.put("bootstrap.servers", "localhost:9092")
+  props.put("group.id", "scala-rhein-main-group")
+  props.put("enable.auto.commit", "true")
+  props.put("key.deserializer", 
+    "org.apache.kafka.common.serialization.StringDeserializer")
+  props.put("value.deserializer", 
+    "org.apache.kafka.common.serialization.StringDeserializer")
+
+  val consumer = new KafkaConsumer[String, String](props)
+  consumer.subscribe(seqAsJavaList(List("test")))
+
+  while (true) {
+    val records = consumer.poll(100)
+    JavaConversions
+      .asScalaIterator(records.iterator)
+      .foreach(record => 
+        logger.info(s"offset=${record.offset}, key=${record.key}, value=${record.value}"))
+  }
+```
+
 ---
 
 ## Best Practices
