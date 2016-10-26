@@ -27,15 +27,21 @@ Freelance Software Engineer / Architect
 
 ----
 
+### What is the role of [ZooKeeper]()?
+
+![ZooKeeper-Coordinates-Cluster](./kafka-zookeeper_for_coordination.svg)
+
+----
+
 ### Relationships between [Producers](), [Consumers](), [Topics]()
 
 ![Relationships-Producers-Consumers-Topics](./kafka-relationships_between_producers_consumers_topics.svg)
 
 ----
 
-### [Topics]() and [Partitions]() are distributed
+### [Topics]() and [Partitions]() are replicated
 
-![Topics-And-Partitions-Are-Distributed](./kafka-topics_and_partitions_are_distributed.svg)
+![Topics-And-Partitions-Are-Replicated](./kafka-topics_and_partitions_are_distributed.svg)
 
 ----
 
@@ -108,7 +114,11 @@ object SimpleConsumer extends App {
 
 ---
 
-## Best Practices
+## [Kafka]() Gotchas and Best Practices
+
+---
+
+## No Inherent Serialization Mechanism
 
 ----
 
@@ -227,6 +237,10 @@ def deserialize(payload: Array[Byte]): Option[T] =
   }
 ```
 
+---
+
+## Kafka employs [at-least-once]() semantics wrt. messaging
+
 ----
 
 ### [#2:]() Use idempotent message handlers if possible
@@ -235,45 +249,61 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ### [#3:]() Use a de-duplication filter if messages are non-idempotent
 
+---
+
+## Potential of [Huge]() Data Loss
+
 ----
 
 ### [#4:]() Disable unclean leader election
 
 ----
 
-### [#5:]() Do not use mirroring for disaster recovery
+### [#5:]() Monitor the size of in-sync-replica sets
 
 ----
 
-### [#6:]() Do not use mirroring for a chain-of-replication
+### [#6:]() Commit consumer offsets manually
+
+---
+
+## Mirroring considered dangerous
 
 ----
 
-### [#7:]() Disable automatic topic creation in production
+### [#7:]() Do not use mirroring for disaster recovery
 
 ----
 
-### [#8:]() Commit consumer offsets manually
+### [#8:]() Do not use mirroring for a chain-of-replication
+
+---
+
+## Going into production
 
 ----
 
-### [#9:]() Monitor the size of in-sync-replica sets
+### [#9:]() Limit the number of topics and partitions
 
 ----
 
-### [#10:]() Use a consistent hashing scheme for keyed messages
+### [#10:]() Disable automatic topic creation
+
+----
+
+### [#11:]() Use a consistent hashing scheme for keyed messages
 
 ---
 
 ### Takeaway
 
-* Property tests live longer than unit tests
-* Tendency to find different bugs
-* Less code, so more maintainable
-  * Requires helper functions 
-  * Generators / Shrinkers can be complex
-* Do not rely on PBT solely! Use it alongside other approaches
-* Use random generators for Strings with care!
+* Battle-proven technology for fast data pipelines
+* Easy-to-use API
+* Characteristics of a distributed commit log
+  * ... not a traditional message broker
+* No guarantee of message delivery
+* No reliable solution for multi-master replication
+* Monitoring? Enterprise? [Confluent](http://www.confluent.io/)!
 
 ---
 
