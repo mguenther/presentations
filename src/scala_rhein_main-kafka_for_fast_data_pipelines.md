@@ -259,6 +259,26 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ----
 
+![Unclean-Leader-Election-1](./kafka-unclean_leader_election_1.svg)
+
+----
+
+![Unclean-Leader-Election-2](./kafka-unclean_leader_election_2.svg)
+
+----
+
+![Unclean-Leader-Election-3](./kafka-unclean_leader_election_3.svg)
+
+----
+
+![Unclean-Leader-Election-4](./kafka-unclean_leader_election_4.svg)
+
+----
+
+![Unclean-Leader-Election-5](./kafka-unclean_leader_election_5.svg)
+
+----
+
 ### [#5:]() Monitor the size of in-sync-replica sets
 
 ----
