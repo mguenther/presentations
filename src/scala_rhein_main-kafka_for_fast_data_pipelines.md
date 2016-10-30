@@ -251,7 +251,7 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ---
 
-## Potential of [Huge]() Data Loss
+## Potential of [Huge]() Data Loss at [Broker](), [Producer]() and [Consumer]()
 
 ----
 
@@ -291,7 +291,14 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ----
 
+
 ### [#7:]() Do not use mirroring for disaster recovery
+
+----
+
+### [Mirroring]() does not preserve offsets
+
+![MirrorMaker](./kafka-mirrormaker.svg)
 
 ----
 
@@ -335,13 +342,12 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ### Sources
 
-#### Conference Talks
+#### Blogs & Articles
 
-* [Property-Based Testing for Better Code](https://www.youtube.com/watch?v=shngiiBfD80) (Jessica Kerr @ Midwest.io 2014)  
-* [Property-Based Testing: Shrinking Risk In Your Code](https://www.youtube.com/watch?v=hNhHmbiw4Rw) (Amanda Launcher @ YOW! 2015)
-* [I Dream of Gen'ning: ScalaCheck Beyond the Basics](https://www.youtube.com/watch?v=lgyGFG6hBa0) (Kelsey Gilmore-Innis @ SBTB 2014)
-* [How I learned to stop unit testing and love Property-Based Testing](http://blog.charleso.org/property-testing-preso/yowlj2015.html) (Charles O'Farrell)
+* [Kafka: A Distributed Messaging System for Log Processing](http://research.microsoft.com/en-us/um/people/srikanth/netdb11/netdb11papers/netdb11-final12.pdf) (Kreps et al.)
+* [Jepsen: Kafka](https://aphyr.com/posts/293-jepsen-kafka) (Kyle Kingsbury)
+* [Schema Evolution in Avro, Protocol Buffers and Thrift](https://martin.kleppmann.com/2012/12/05/schema-evolution-in-avro-protocol-buffers-thrift.html) (Martin Kleppmann)
 
-#### Blogs
+#### Talks
 
-* [Choosing Properties for Property-Based Testing](https://fsharpforfunandprofit.com/posts/property-based-testing-2/) (Scott Wlaschin)
+* [No Data Loss Pipeline with Apache Kafka](http://www.slideshare.net/JiangjieQin/no-data-loss-pipeline-with-apache-kafka-49753844) (Jiangjie Qin)
