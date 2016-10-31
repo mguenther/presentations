@@ -9,11 +9,101 @@ Freelance Software Engineer / Architect
 
 ---
 
+### How [data pipelines]() start off
+
+![How-Data-Pipelines-Start-Off-1](./kafka-how_data_pipelines_start_1.svg)
+
+----
+
+### How [data pipelines]() start off (cont'd)
+
+![How-Data-Pipelines-Start-Off-2](./kafka-how_data_pipelines_start_2.svg)
+
+----
+
+### How [data pipelines]() start off (cont'd)
+
+![How-Data-Pipelines-Start-Off-3](./kafka-how_data_pipelines_start_3.svg)
+
+----
+
+### How [data pipelines]() start off (cont'd)
+
+![How-Data-Pipelines-Start-Off-4](./kafka-how_data_pipelines_start_4.svg)
+
+----
+
+### Decoupling [data pipelines]()
+
+![Decoupling-Data-Pipelines-1](./kafka-decoupling_data_pipeline_1.svg)
+
+----
+
+### Decoupling [data pipelines]() (cont'd)
+
+![Decoupling-Data-Pipelines-2](./kafka-decoupling_data_pipeline_2.svg)
+
+----
+
+### Decoupling [data pipelines]() (cont'd)
+
+![Decoupling-Data-Pipelines-3](./kafka-decoupling_data_pipeline_3.svg)
+
+----
+
+### What drives the [design]() of a [data pipeline]()?
+
+* High throughput<!-- .element: class="fragment" data-fragment-index="1" -->
+* Horizontal scalability<!-- .element: class="fragment" data-fragment-index="2" -->
+* High availability<!-- .element: class="fragment" data-fragment-index="3" -->
+* No data loss<!-- .element: class="fragment" data-fragment-index="4" -->
+* Satisfies (soft) real-time constraints<!-- .element: class="fragment" data-fragment-index="5" -->
+* Enforces structure of data<!-- .element: class="fragment" data-fragment-index="6" -->
+* Single source of truth<!-- .element: class="fragment" data-fragment-index="7" -->
+
+---
+
 ## Enter Apache [Kafka]()
 
 ----
 
-### [Key Innovations]()<!-- .element: class="fragment" data-fragment-index="0" -->
+### [Overview]()
+
+* Apache project, originated at LinkedIn<!-- .element: class="fragment" data-fragment-index="1" -->
+* Distributed publish-subscribe messaging system<!-- .element: class="fragment" data-fragment-index="2" -->
+* Supports both queue and topic semantics<!-- .element: class="fragment" data-fragment-index="3" -->
+
+----
+
+### [Point-to-Point]() Messaging
+
+##### (Queue Semantics)
+
+![Point-to-Point-Messaging](./kafka-messaging_point_to_point.svg)
+
+----
+
+### [Publish-Subscribe]() Messaging
+
+##### (Topic Semantics)
+
+![Publish-Subscribe-Messaging](./kafka-messaging_publish_subscribe.svg)
+
+----
+
+### [Overview]()
+
+* Apache project, originated at LinkedIn
+* Distributed publish-subscribe messaging system
+* Supports both queue and topic semantics
+* Designed for real-time processing of events<!-- .element: class="fragment" data-fragment-index="1" -->
+* Has at-least-once messaging semantics<!-- .element: class="fragment" data-fragment-index="2" -->
+* No integration with JMS<!-- .element: class="fragment" data-fragment-index="3" -->
+* Written in Scala<!-- .element: class="fragment" data-fragment-index="4" -->
+
+----
+
+### [Key Innovations]()
 
 * Messages are acknowledged in order<!-- .element: class="fragment" data-fragment-index="1" -->
 * Messages are persisted for days / weeks<!-- .element: class="fragment" data-fragment-index="2" -->
@@ -111,6 +201,10 @@ object SimpleConsumer extends App {
         logger.info(s"offset=${record.offset}, key=${record.key}, value=${record.value}"))
   }
 ```
+
+---
+
+# Demo
 
 ---
 
@@ -255,7 +349,7 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ----
 
-### [#4:]() Disable unclean leader election
+> "For a topic with replication factor N, Kafka can tolerate up to N-1 server failures without losing any messages committed to the log."
 
 ----
 
@@ -278,6 +372,12 @@ def deserialize(payload: Array[Byte]): Option[T] =
 ![Unclean-Leader-Election-5](./kafka-unclean_leader_election_5.svg)
 
 ----
+
+### [#4:]() Disable unclean leader election
+	
+
+----
+
 
 ### [#5:]() Monitor the size of in-sync-replica sets
 
@@ -322,32 +422,52 @@ def deserialize(payload: Array[Byte]): Option[T] =
 
 ---
 
-### Takeaway
+### [Advanced]() Topics and [Outlook]()
 
-* Battle-proven technology for fast data pipelines
-* Easy-to-use API
-* Characteristics of a distributed commit log
-  * ... not a traditional message broker
-* No guarantee of message delivery
-* No reliable solution for multi-master replication
-* Monitoring? Enterprise? [Confluent](http://www.confluent.io/)!
+* Lossless data pipelines<!-- .element: class="fragment" data-fragment-index="1" -->
+* Messaging backbone for<!-- .element: class="fragment" data-fragment-index="2" -->
+  * ... Microservices?<!-- .element: class="fragment" data-fragment-index="2" -->
+  * ... Event-sourced systems?<!-- .element: class="fragment" data-fragment-index="2" -->
+* Ecosystem grows<!-- .element: class="fragment" data-fragment-index="3" -->
+  * Kafka Connect<!-- .element: class="fragment" data-fragment-index="3" -->
+  * Kafka Streams<!-- .element: class="fragment" data-fragment-index="3" -->
+  * Integrations with Hadoop, Storm, Samza, Flume, ...<!-- .element: class="fragment" data-fragment-index="3" -->
+
+----
+
+### [Takeaway]()
+
+* Battle-proven technology for fast data pipelines<!-- .element: class="fragment" data-fragment-index="1" -->
+* Easy-to-use API<!-- .element: class="fragment" data-fragment-index="2" -->
+* Characteristics of a distributed commit log<!-- .element: class="fragment" data-fragment-index="3" -->
+  * ... not a traditional message broker<!-- .element: class="fragment" data-fragment-index="3" -->
+* No guarantee of message delivery<!-- .element: class="fragment" data-fragment-index="4" -->
+* No reliable solution for multi-master replication<!-- .element: class="fragment" data-fragment-index="5" -->
+* Monitoring? Enterprise?<!-- .element: class="fragment" data-fragment-index="6" --> [Confluent](http://www.confluent.io/)!<!-- .element: class="fragment" data-fragment-index="6" -->
 
 ---
 
-# Thank you!
+# [Thank]() you!
 
-## Any Questions?
+## Any [Questions?]()
 
 ---
 
-### Sources
+### [Sources]()
 
 #### Blogs & Articles
 
-* [Kafka: A Distributed Messaging System for Log Processing](http://research.microsoft.com/en-us/um/people/srikanth/netdb11/netdb11papers/netdb11-final12.pdf) (Kreps et al.)
-* [Jepsen: Kafka](https://aphyr.com/posts/293-jepsen-kafka) (Kyle Kingsbury)
-* [Schema Evolution in Avro, Protocol Buffers and Thrift](https://martin.kleppmann.com/2012/12/05/schema-evolution-in-avro-protocol-buffers-thrift.html) (Martin Kleppmann)
+* [Kafka: A Distributed Messaging System [...]](http://research.microsoft.com/en-us/um/people/srikanth/netdb11/netdb11papers/netdb11-final12.pdf) (Kreps et al.)
+* [Jepsen: Kafka](https://aphyr.com/posts/293-jepsen-kafka) (Kingsbury)
+* [Schema Evolution in Avro, Protocol Buffers [...]](https://martin.kleppmann.com/2012/12/05/schema-evolution-in-avro-protocol-buffers-thrift.html) (Kleppmann)
 
 #### Talks
 
-* [No Data Loss Pipeline with Apache Kafka](http://www.slideshare.net/JiangjieQin/no-data-loss-pipeline-with-apache-kafka-49753844) (Jiangjie Qin)
+* [Introduction to Kafka and Zookeeper](http://www.slideshare.net/rahuldausa/introduction-to-kafka-and-zookeeper) (Jain)
+* [Introduction to Apache Kafka](http://www.slideshare.net/jhols1/kafka-atlmeetuppublicv2) (Holoman)
+* [No Data Loss Pipeline with Apache Kafka](http://www.slideshare.net/JiangjieQin/no-data-loss-pipeline-with-apache-kafka-49753844) (Qin)
+* [From a Kafkaesque Story to the Promised Land](http://www.slideshare.net/ransilberman/from-a-kafkaesque-story-to-the-promised-land-23992927) (Silberman)
+
+#### Books
+
+* [Streaming Architecture](https://www.mapr.com/streaming-architecture-using-apache-kafka-mapr-streams) (Dunning et al.)
