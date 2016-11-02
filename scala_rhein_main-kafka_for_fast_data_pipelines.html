@@ -138,7 +138,7 @@ Freelance Software Engineer / Architect
 <aside class="notes" data-markdown>Kafka brokers store messages per-partition in at least one segment file. A broker has an in-memory segment list that it keeps up-to-date. Messages are assigned a specific offset that increases linearly. The segment list keeps track of the offsets stored inside particular segments. Segment files have a configurable size. Messages are only ever appended to the segment. There is no random access involved at all when writing to a segment file. This, and the fact that Kafka uses zero-copy via the sendfile API, is one of the reasons why Kafka is able to achieve its incredible write performance (non-random I/O is much faster than random I/O).</aside></script></section><section data-markdown><script type="text/template">
 ### So, how fast is this thing?
 
-![Performance-Comparison](./kafka-producer_and_consumer_performance.png)
+![Performance-Comparison](./kafka-producer_and_consumer_performance.jpg)
 
 <aside class="notes" data-markdown>These charts are taken from the original paper written by Kreps et al. They showcase the performance on both the producer- and consumer-side in comparison to traditional messaging solutions like Apache ActiveMQ and RabbitMQ.</aside></script></section><section data-markdown><script type="text/template">
 ### The [KafkaProducer]() API
@@ -212,7 +212,7 @@ object SimpleConsumer extends App {
 </script></section><section data-markdown><script type="text/template">
 #### Which [serialization framework]() should I use?
 
-![Serialization-Comparison](./kafka-serialization_comparison.png)
+![Serialization-Comparison](./kafka-serialization_comparison.jpg)
 </script></section><section data-markdown><script type="text/template">
 #### [Apache Avro]() is suitable for streaming applications
 
