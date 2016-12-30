@@ -4,7 +4,7 @@
 
 Rhein-Main Scala Enthusiasts (2016/06/07)
 
-[markus.guenther@gmail.com](mailto:markus.guenther@gmail.com) | [habitat47.de](http://www.habitat47.de) | [@mguenther](https://twitter.com/mguenther)
+<small>[markus.guenther@gmail.com](mailto:markus.guenther@gmail.com) | [habitat47.de](http://www.habitat47.de) | [@markus_guenther](https://twitter.com/markus_guenther)</small>
 
 ---
 
