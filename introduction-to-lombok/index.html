@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>reveal-md</title>
+        <link rel="stylesheet" href="./css/reveal.css">
+        <link rel="stylesheet" href="./css/theme/white.css" id="theme">
+        <link rel="stylesheet" href="./css/highlight/github.css">
+        <link rel="stylesheet" href="./css/print/paper.css" type="text/css" media="print">
+
+    </head>
+    <body>
+
+        <div class="reveal">
+            <div class="slides"><section  data-markdown><script type="text/template"># Project [Lombok]()
+
+**Markus Günther**
+
+Freelance Software Engineer / Architect
+
+<small>[mail@mguenther.net](mailto:mail@mguenther.net) | [mguenther.net](http://www.mguenther.net) | [@markus_guenther](https://twitter.com/markus_guenther)</small>
+</script></section><section ><section data-markdown><script type="text/template">
+## Avoid repetitive code
+</script></section><section data-markdown><script type="text/template">
+* Getters
+* Setters
+* [`equals` and `hashCode`](http://www.artima.com/lejava/articles/equality.html)
+* `toString`
+* Constructors
+* ...
+</script></section></section><section ><section data-markdown><script type="text/template">
+## What does Lombok provide?
+</script></section><section data-markdown><script type="text/template">
+```java
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private String firstName;
+  private String lastName;
+  
+  public User() {
+  }
+  
+  public User(String firstName, String lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+  
+  public Long getId() {
+    return this.id;
+  }
+
+  public String getFirstName() {
+    return this.firstName;
+  }
+  
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+  
+  public String getLastName() {
+    return this.lastName;
+  }
+  
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    
+    User user = (User) o;
+    
+    if (firstName != null ?
+      !firstName.equals(user.firstName)) :
+      user.firstName != null) return false;
+    return lastName != null ?
+      lastName.equals(user.lastName) :
+      user.lastName == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = firstName != null ? firstName.hashCode() : 0;
+    result = 31 * result * (lastName != null ? lastName.hashCode() : 0);
+    return result;
+  }
+  
+  @Override
+  public String toString() {
+    return "User{" +
+      "firstName = '" + firstName + '\'' +
+      ", lastName = '" + lastName + '\'' +
+      '}';
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## 70 LoC, most of them are just noise
+</script></section><section data-markdown><script type="text/template">
+### Get Rid of Getters / Setters
+
+```java
+@lombok.Getter
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private @lombok.Setter String firstName;
+  private @lombok.Setter String lastName;
+  
+  /* Constructors */
+  /* Equals and HashCode */
+  /* ToString */
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Get Rid of `equals` and `hashCode`
+
+```java
+@lombok.Getter
+@lombok.EqualsAndHashCode(of = { "firstName", "lastName "})
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private @lombok.Setter String firstName;
+  private @lombok.Setter String lastName;
+  
+  /* Constructors */
+  /* ToString */
+}
+```
+
+<aside class="notes"><p>Always <strong>explicitly</strong> state the attribute names over which the generated implementation of <code>equals</code> and <code>hashCode</code> should close. If you are applying <code>@EqualsAndHashCode</code> to a JPA entity, then try to close over the functional ID (never the technical ID) of that entity.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### Get Rid of Constructors
+
+```java
+@lombok.Getter
+@lombok.EqualsAndHashCode(of = { "firstName", "lastName" })
+@lombok.NoArgsConstructor(access = AccessLevel.PUBLIC)
+@lombok.AllArgsConstructor
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private @lombok.Setter String firstName;
+  private @lombok.Setter String lastName;
+  
+  /* ToString */
+}
+```
+
+<aside class="notes"><p>This is especially useful if your POJO has to be compliant with the Java Bean specification (JPA, XML, ...) and requires a no-argument-constructor (use <code>@NoArgsConstructor</code>). Not shown in this example is <code>@RequiredArgsConstructor</code> which generates a constructor that incorporates all members of the class that are attributed with <code>final</code>.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### Get Rid of `toString`
+
+```java
+@lombok.Getter
+@lombok.EqualsAndHashCode(of = { "firstName", "lastName" })
+@lombok.NoArgsConstructor(access = AccessLevel.PUBLIC)
+@lombok.AllArgsConstructor
+@lombok.ToString
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private @lombok.Setter String firstName;
+  private @lombok.Setter String lastName;
+}
+```
+
+<aside class="notes"><p>It is good practice to list the attributes that the generated <code>toString</code>-implementation should take into account. If this list is too large, you can also exclude specific members. Try to avoid having complex <code>toString</code> methods (e.g. avoid collections).</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### What did we get out of this?
+
+* 15 LoC Lombok-ified
+* Less prone to error
+* Easier on the eye
+
+<aside class="notes"><p><strong>Less prone to error</strong> is actually a huge benefit, as Lombok uses best practices when generating <code>equals</code> and <code>hashCode</code> or <code>toString</code> implementations.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+## Anything else?
+
+* `@Data`
+* `@Builder`
+* `@RequiredArgsConstructor`
+* `@Slf4j`
+* `@SneakyThrows`
+* `@Cleanup`
+* `@NonNull`
+* `@Synchronized`
+
+<aside class="notes"><p>This only shows <strong>stable</strong> features. <strong>Experimental</strong> features of Lombok are not part of this introduction and should - at least for the time being - be avoided in production code.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### Use `@Data` for concise transport objects
+
+```java
+@lombok.Data
+public class UserAddedEvent {
+  private String firstName;
+  private String lastName;
+}
+```
+
+<aside class="notes"><p><code>@Data</code> is actually a somewhat dangerous feature and should only be applied to transfer objects. It is perfectly reasonable to disallow this annotation for the entire codebase as it can introduce subtle bugs if the developer does not know for sure what she is doing.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### Use `@Builder` for configuration classes
+
+```java
+@Builder
+public class Credentials {
+  private String username;
+  private String password;
+}
+```
+
+<aside class="notes"><p>Lombok does not support polymorph builders and therefore cannot be correctly applied to a hierarchy of classes. It does not support default values.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### `@Builder` generates a fluid API
+
+```java
+Credentials credentials = new CredentialsBuilder()
+  .username("my-user-name")
+  .password("my-secret-password")
+  .build();
+```
+</script></section><section data-markdown><script type="text/template">
+### Use `@RequiredArgsConstructor` for injection
+
+```java
+@RequiredArgsConstructor
+public class UserService {
+  private final UserRepository repository;
+  /* Business logic */
+}
+```
+
+* No constructor with explicit collaborators
+* Works well with Spring DI
+
+<aside class="notes"><p>As of version 4.3, Spring Core does not rely on <code>@Autowired</code> or <code>@Inject</code> annotated constructors, but can determine the injection points all by itself without further guidance. This is best practice as of 4.3 and works well together with the <code>@RequiredArgsConstructor</code> of Lombok. Simply attribute all collaborators of your Spring-managed bean with <code>final</code> and apply the <code>@RequiredArgsConstructor</code> at class level.</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### Use `@Slf4j` for injecting a logger
+
+```java
+@Slf4j
+public class UserService {
+  public void addUser(String firstName, String lastName) {
+    /* Business logic */
+    log.info("User {} {} added.", firstName, lastName);
+  }
+}
+```
+
+<aside class="notes"><p>There are other logging-specific annotations as well (e.g. <code>@CommonsLog</code>, <code>@Log</code>, <code>@JBossLog</code>, <code>@Log4j</code>, <code>@Log4j2</code>).</p>
+</aside></script></section><section data-markdown><script type="text/template">
+### The burden of checked exceptions
+
+```java
+public String resourceAsString(String resource) {
+  try (InputStream is = getClass().getResourceAsStream(resource)) {
+    BufferedReader br = new BufferedReader(
+      new InputStreamReader(is, "utf-8"));
+    return br.lines()
+             .collect(Collectors.joining("\n"));
+  } catch (IOException | UnsupportedCharsetException e) {
+    throw new RuntimeException(e);
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Use `@SneakyThrows` on checked exceptions
+
+```java
+@SneakyThrows
+public String resourceAsString(String resource) {
+  try (InputStream is = getClass().getResourceAsStream(resource)) {
+    BufferedReader br = new BufferedReader(
+      new InputStreamReader(is, "utf-8"));
+    return br.lines()
+             .collect(Collectors.joining("\n"));
+  }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### Use `@Cleanup` to ensure resource release
+
+```java
+@Cleanup InputStream is = getClass()
+  .getResourceAsStream();
+```
+
+or if the target does not have a `close` method
+
+```java
+@Cleanup("dispose") JFrame frame = new JFrame("My App");
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Lombok considered dangerous?
+</script></section><section data-markdown><script type="text/template">
+### What is the problem here?
+
+```java
+@Data
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private String firstName;
+  private String lastName;
+  @OneToMany(mappedBy = "user")
+  private List<UserEvent> events;
+}
+```
+</script></section><section data-markdown><script type="text/template">
+### What is the problem here?
+
+* `@Data` generates `equals` and `hashCode` over all members
+  * Do not use auto-generated IDs in `equals` and `hashCode`!
+* `@Data` generates `toString` over all members
+  * What if we have lazily loaded collections?
+* `@Data` generates getters / setters for all members
+  * Do not expose things with setters that should not change
+</script></section><section data-markdown><script type="text/template">
+### How do we fix this?
+
+```java
+@lombok.Getter
+@lombok.EqualsAndHashCode(of = { "firstName", "lastName" })
+@lombok.NoArgsConstructor(access = AccessLevel.PUBLIC)
+@lombok.RequiredArgsConstructor
+@lombok.ToString(exclude = "events")
+@Entity
+public class User implements Serializable {
+  private @Id Long id;
+  private final String firstName;
+  private final String lastName;
+  @OneToMany(mappedBy = "user")
+  private List<UserEvent> events;
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## Make considerate use of Lombok
+
+* Explicitly state over which members `@EqualsAndHashCode` should close
+* This holds for `@ToString` in most of the times as well
+* Do not expose setters for things that should not change
+* Never use `@Data` for anything other than value types
+</script></section><section data-markdown><script type="text/template">
+## Make considerate use of Lombok (cont'd)
+
+* Never use `@SneakyThrows`
+* Try to avoid using heavy fields as part of `@EqualsAndHashCode` or `@ToString`
+* Use `@NoArgsConstructor` where compliance with Java Bean specification is expected
+* Use `@RequiredArgsConstructor` with `final` fields and Spring DI
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Using Lombok
+</script></section><section data-markdown><script type="text/template">
+### Lombok is a build - not runtime - dependency
+
+```xml
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <version>${lombok.version}</version>
+  <scope>provided</scope>
+</dependency>
+```
+</script></section><section data-markdown><script type="text/template">
+### Configure the Maven Compiler Plugin
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <annotationProcessors>
+      <annotationProcessor>
+        lombok.launch.AnnotationProcessorHider$AnnotationProcessor
+      </annotationProcessor>
+    </annotationProcessors>
+    [...]
+    </configuration>
+</plugin>
+```
+</script></section><section data-markdown><script type="text/template">
+### Lombok requires a plugin for your IDE of choice
+</script></section><section data-markdown><script type="text/template">
+### De-Lomboking yields generated Java source files
+
+```bash
+$ java -jar <path_to_lombok.jar> delombok src -d generated-src
+```
+
+* If you want to check the output of the compiler
+* Or decide to throw out Lombok without losing code
+* Maven Integration is provided by `lombok-maven-plugin`
+* Sample project is at [awhitford/lombok.maven @ GitHub](https://github.com/awhitford/lombok.maven)
+</script></section><section data-markdown><script type="text/template">
+## What about code analysis tools?
+
+* Works well with FindBugs
+* Works not so well with PMD
+  * Use `@SuppressWarnings("PMD")` at class level
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Lombok is not a perfect solution
+
+* Annotation-based approach is questionable
+* If used wrong, can lead to bad software design and subtle bugs
+* Is no silver bullet
+* ... but still reduces much of Java's verbosity
+</script></section><section data-markdown><script type="text/template">
+# Questions?
+</script></section></section></div>
+        </div>
+
+        <script src="./lib/js/head.min.js"></script>
+        <script src="./js/reveal.js"></script>
+
+        <script>
+            function extend() {
+              var target = {};
+              for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                  if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                  }
+                }
+              }
+              return target;
+            }
+
+            // Optional libraries used to extend on reveal.js
+            var deps = [
+              { src: './lib/js/classList.js', condition: function() { return !document.body.classList; } },
+              { src: './plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: './plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: './plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: './plugin/zoom-js/zoom.js', async: true },
+              { src: './plugin/notes/notes.js', async: true },
+              { src: './plugin/math/math.js', async: true }
+            ];
+
+            // default options to init reveal.js
+            var defaultOptions = {
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              transition: 'default', // none/fade/slide/convex/concave/zoom
+              dependencies: deps
+            };
+
+            // options from URL query string
+            var queryOptions = Reveal.getQueryHash() || {};
+
+            var options = {};
+            options = extend(defaultOptions, options, queryOptions);
+        </script>
+
+
+        <script>
+            Reveal.initialize(options);
+        </script>
+    </body>
+</html>
